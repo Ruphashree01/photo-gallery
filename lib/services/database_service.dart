@@ -4,9 +4,9 @@ import 'package:photo_gallery/models/photo.dart';
 const String PHOTO_COLLECTION_REF = "GalleryPhotos";
 
 class DatabaseService {
-  final _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  late final CollectionReference _galleryPhotosref;
+  late final CollectionReference<Photos> _galleryPhotosref;
 
   DatabaseService() {
     _galleryPhotosref =
@@ -18,23 +18,28 @@ class DatabaseService {
             );
   }
 
-  Stream<DocumentSnapshot> getGalleryPhotos() {
-    return _galleryPhotosref.doc().snapshots();
-  }
-
   Future<void> addPhoto(Photos photo) async {
     try {
       await _galleryPhotosref.add(photo);
     } catch (e) {
-      print("Error: $e");
+      print("Error adding photo: $e");
     }
   }
 
-  // Future<void> deletePhoto(Photos photo) async {
-  //   try {
-  //     await _galleryPhotosref.delete(photo);
-  //   } catch (e) {
-  //     print("Error: $e");
-  //   }
+  Stream<QuerySnapshot<Photos>> listenToPhotos() {
+    try {
+      return _galleryPhotosref.snapshots();
+    } catch (e) {
+      print("Error listening to photos: $e");
+      return const Stream.empty();
+    }
+  }
+
+  Future<void> deletePhoto(String docId) async {
+    try {
+      await _galleryPhotosref.doc(docId).delete();
+    } catch (e) {
+      print("Error deleting photo: $e");
+    }
+  }
 }
-// }

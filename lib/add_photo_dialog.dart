@@ -131,8 +131,16 @@ class _AddPhotoDialogState extends State<AddPhotoDialog> {
               name: photographerName,
               url: imageURL,
               description: description,
-              dateTime: DateTime(_selectedDate!.year, _selectedDate!.month,
-                  _selectedDate!.day, 0, 0, 0, 0, 0),
+              dateTime: DateTime(
+                _selectedDate!.year,
+                _selectedDate!.month,
+                _selectedDate!.day,
+                0,
+                0,
+                0,
+                0,
+                0,
+              ),
             );
 
             widget.onAdd(photo);

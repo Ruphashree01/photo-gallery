@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:like_button/like_button.dart';
 import 'add_photo_dialog.dart';
 import 'models/photo.dart';
+import 'services/database_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MyWidget extends StatefulWidget {
   const MyWidget({super.key});
@@ -12,9 +14,16 @@ class MyWidget extends StatefulWidget {
 }
 
 class _MyWidgetState extends State<MyWidget> {
+  final DatabaseService _databaseService = DatabaseService();
   List<String> menu = ['All Photos', 'Santhos', 'Test-1'];
   List<Photos> photoList = [];
   String sortBy = 'Time -latest first';
+
+  @override
+  void initState() {
+    super.initState();
+    _listenToPhotos();
+  }
 
   void _handleAddPhoto(Photos photo) {
     setState(() {
@@ -35,13 +44,14 @@ class _MyWidgetState extends State<MyWidget> {
     });
   }
 
-  void _deletePhoto(int index) {
+  void _deletePhoto(String docId, int index) async {
+    await _databaseService.deletePhoto(docId);
     setState(() {
       photoList.removeAt(index);
     });
   }
 
-  void _showDeleteConfirmationDialog(int index) {
+  void _showDeleteConfirmationDialog(String docId, int index) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -91,7 +101,7 @@ class _MyWidgetState extends State<MyWidget> {
                       child: TextButton(
                         onPressed: () {
                           Navigator.of(context).pop();
-                          _deletePhoto(index);
+                          _deletePhoto(photoList[index].docId!, index);
                         },
                         child: Text('DELETE'),
                         style: TextButton.styleFrom(
@@ -111,6 +121,28 @@ class _MyWidgetState extends State<MyWidget> {
         );
       },
     );
+  }
+
+  void _listenToPhotos() {
+    _databaseService.listenToPhotos().listen((QuerySnapshot snapshot) {
+      List<Photos> updatedPhotos = snapshot.docs.map((doc) {
+        return Photos(
+          docId: doc.id, // Set the docId here
+          name: doc['name'],
+          url: doc['url'],
+          description: doc['description'],
+          dateTime: (doc['dateTime'] as Timestamp).toDate(),
+        );
+      }).toList();
+
+      setState(() {
+        photoList = updatedPhotos;
+      });
+
+      for (var photo in updatedPhotos) {
+        print('TAG1: ${photo.name} => ${photo.url}');
+      }
+    });
   }
 
   @override
@@ -267,7 +299,7 @@ class _MyWidgetState extends State<MyWidget> {
                         child: IconButton(
                           icon: Icon(Icons.delete, color: Colors.red),
                           onPressed: () {
-                            _showDeleteConfirmationDialog(index);
+                            _showDeleteConfirmationDialog(photo.docId!, index);
                           },
                         ),
                       ),
