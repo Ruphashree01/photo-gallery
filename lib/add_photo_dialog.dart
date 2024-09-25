@@ -131,6 +131,7 @@ class _AddPhotoDialogState extends State<AddPhotoDialog> {
               name: photographerName,
               url: imageURL,
               description: description,
+              isLiked: false,
               dateTime: DateTime(
                 _selectedDate!.year,
                 _selectedDate!.month,

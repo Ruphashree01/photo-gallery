@@ -42,4 +42,15 @@ class DatabaseService {
       print("Error deleting photo: $e");
     }
   }
+
+  Future<void> updatePhotoLikeStatus(String docId, bool isLiked) async {
+    try {
+      await _galleryPhotosref.doc(docId).update({
+        'isLiked': isLiked,
+      });
+      print("Photo $docId like status updated to $isLiked");
+    } catch (e) {
+      print("Error updating like status for photo $docId: $e");
+    }
+  }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:like_button/like_button.dart';
 import 'add_photo_dialog.dart';
 import 'models/photo.dart';
 import 'services/database_service.dart';
@@ -127,11 +126,12 @@ class _MyWidgetState extends State<MyWidget> {
     _databaseService.listenToPhotos().listen((QuerySnapshot snapshot) {
       List<Photos> updatedPhotos = snapshot.docs.map((doc) {
         return Photos(
-          docId: doc.id, // Set the docId here
+          docId: doc.id,
           name: doc['name'],
           url: doc['url'],
           description: doc['description'],
           dateTime: (doc['dateTime'] as Timestamp).toDate(),
+          isLiked: doc['isLiked'],
         );
       }).toList();
 
@@ -234,7 +234,7 @@ class _MyWidgetState extends State<MyWidget> {
                 final photo = photoList[index];
                 final formattedDate =
                     DateFormat('dd-MM-yyyy').format(photo.dateTime);
-
+                print('a1  ${photo.isLiked}');
                 return ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: Stack(
@@ -280,16 +280,22 @@ class _MyWidgetState extends State<MyWidget> {
                       Positioned(
                         top: 8,
                         left: 8,
-                        child: LikeButton(
-                          onTap: (isLiked) async {
-                            return !isLiked;
-                          },
-                          likeCountPadding: EdgeInsets.symmetric(horizontal: 4),
-                          likeBuilder: (isLiked) {
-                            return Icon(
-                              Icons.favorite,
-                              color: isLiked ? Colors.red : Colors.white,
-                            );
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.favorite,
+                            color: photo.isLiked == true
+                                ? Colors.red
+                                : Colors.white,
+                          ),
+                          onPressed: () async {
+                            print('a  ${photo.isLiked}');
+                            setState(() {
+                              photo.isLiked = !photo.isLiked;
+                            });
+                            print('b ${photo.isLiked}');
+                            _databaseService.updatePhotoLikeStatus(
+                                photo.docId!, photo.isLiked);
+                            print(photo.isLiked);
                           },
                         ),
                       ),

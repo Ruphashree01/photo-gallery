@@ -6,6 +6,7 @@ class Photos {
   final String url;
   final String description;
   final DateTime dateTime;
+  bool isLiked;
 
   Photos({
     this.docId,
@@ -13,6 +14,7 @@ class Photos {
     required this.url,
     required this.description,
     required this.dateTime,
+    required this.isLiked,
   });
 
   Photos.fromJson(Map<String, dynamic> json)
@@ -22,6 +24,7 @@ class Photos {
           url: json['url'] as String,
           description: json['description'] as String,
           dateTime: (json['dateTime'] as Timestamp).toDate(),
+          isLiked: json['isLiked'],
         );
 
   Map<String, dynamic> toJson() {
@@ -31,6 +34,7 @@ class Photos {
       'url': url,
       'description': description,
       'dateTime': Timestamp.fromDate(dateTime),
+      'isLiked': isLiked,
     };
   }
 }
