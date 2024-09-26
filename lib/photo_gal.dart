@@ -14,9 +14,10 @@ class MyWidget extends StatefulWidget {
 
 class _MyWidgetState extends State<MyWidget> {
   final DatabaseService _databaseService = DatabaseService();
-  List<String> menu = ['All Photos', 'Santhos', 'Test-1'];
+  List<String> menu = ['Like', 'Unlike', 'All'];
   List<Photos> photoList = [];
   String sortBy = 'Time Desc';
+  bool? isLikedFilter;
 
   @override
   void initState() {
@@ -32,7 +33,15 @@ class _MyWidgetState extends State<MyWidget> {
 
   void _sortPhotoList(String sortOption) {
     setState(() {
-      sortBy = sortOption;
+      if (sortOption == 'Like') {
+        isLikedFilter = true;
+      } else if (sortOption == 'Unlike') {
+        isLikedFilter = false;
+      } else if (sortOption == 'All') {
+        isLikedFilter = null;
+      } else {
+        sortBy = sortOption;
+      }
       _listenToPhotos();
     });
   }
@@ -73,7 +82,7 @@ class _MyWidgetState extends State<MyWidget> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
                     SizedBox(
-                      width: 120,
+                      width: 100,
                       child: TextButton(
                         onPressed: () {
                           Navigator.of(context).pop();
@@ -90,7 +99,7 @@ class _MyWidgetState extends State<MyWidget> {
                     ),
                     SizedBox(width: 20),
                     SizedBox(
-                      width: 130,
+                      width: 100,
                       child: TextButton(
                         onPressed: () {
                           Navigator.of(context).pop();
@@ -117,7 +126,9 @@ class _MyWidgetState extends State<MyWidget> {
   }
 
   void _listenToPhotos() {
-    _databaseService.listenToPhotos(sortBy).listen((QuerySnapshot snapshot) {
+    _databaseService
+        .listenToPhotos(sortBy, isLiked: isLikedFilter)
+        .listen((QuerySnapshot snapshot) {
       List<Photos> updatedPhotos = snapshot.docs.map((doc) {
         return Photos(
           docId: doc.id,

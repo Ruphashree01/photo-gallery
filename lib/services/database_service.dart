@@ -26,19 +26,20 @@ class DatabaseService {
     }
   }
 
-  Stream<QuerySnapshot<Photos>> listenToPhotos(String sortBy) {
+  Stream<QuerySnapshot<Photos>> listenToPhotos(String sortBy, {bool? isLiked}) {
     try {
-      Query<Photos> query;
+      Query<Photos> query = _galleryPhotosref;
 
-      if (sortBy == 'Time Desc') {
-        query = _galleryPhotosref.orderBy('dateTime', descending: true);
-      } else if (sortBy == 'Time Asc') {
-        query = _galleryPhotosref.orderBy('dateTime', descending: false);
-      } else if (sortBy == 'Name') {
-        query = _galleryPhotosref.orderBy('name');
-      } else {
-        query = _galleryPhotosref;
+      if (isLiked != null) {
+        query = _galleryPhotosref.where('isLiked', isEqualTo: isLiked);
       }
+      if (sortBy == 'Time Desc') {
+        query = query.orderBy('dateTime', descending: true);
+      } else if (sortBy == 'Time Asc') {
+        query = query.orderBy('dateTime', descending: false);
+      } else if (sortBy == 'Name') {
+        query = query.orderBy('name');
+      } else {}
 
       return query.snapshots();
     } catch (e) {
