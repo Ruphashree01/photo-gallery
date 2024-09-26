@@ -16,7 +16,7 @@ class _MyWidgetState extends State<MyWidget> {
   final DatabaseService _databaseService = DatabaseService();
   List<String> menu = ['All Photos', 'Santhos', 'Test-1'];
   List<Photos> photoList = [];
-  String sortBy = 'Time -latest first';
+  String sortBy = 'Time Desc';
 
   @override
   void initState() {
@@ -33,13 +33,7 @@ class _MyWidgetState extends State<MyWidget> {
   void _sortPhotoList(String sortOption) {
     setState(() {
       sortBy = sortOption;
-      if (sortOption == 'Time -latest first') {
-        photoList.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-      } else if (sortOption == 'Time -latest last') {
-        photoList.sort((a, b) => a.dateTime.compareTo(b.dateTime));
-      } else if (sortOption == 'Name') {
-        photoList.sort((a, b) => a.name.compareTo(b.name));
-      }
+      _listenToPhotos();
     });
   }
 
@@ -123,7 +117,7 @@ class _MyWidgetState extends State<MyWidget> {
   }
 
   void _listenToPhotos() {
-    _databaseService.listenToPhotos().listen((QuerySnapshot snapshot) {
+    _databaseService.listenToPhotos(sortBy).listen((QuerySnapshot snapshot) {
       List<Photos> updatedPhotos = snapshot.docs.map((doc) {
         return Photos(
           docId: doc.id,
@@ -162,7 +156,7 @@ class _MyWidgetState extends State<MyWidget> {
               Icons.filter_list_sharp,
               color: Colors.white,
             ),
-            onSelected: (String value) {},
+            onSelected: _sortPhotoList,
             itemBuilder: (context) {
               return menu
                   .map((e) => PopupMenuItem<String>(
@@ -178,17 +172,18 @@ class _MyWidgetState extends State<MyWidget> {
               color: Colors.white,
             ),
             onSelected: (String value) {
+              print(value);
               _sortPhotoList(value);
             },
             itemBuilder: (context) {
               return [
                 const PopupMenuItem<String>(
-                  value: 'Time -latest first',
-                  child: Text('Time -latest first'),
+                  value: 'Time Desc',
+                  child: Text('Time Desc'),
                 ),
                 const PopupMenuItem<String>(
-                  value: 'Time -latest last',
-                  child: Text('Time -latest last'),
+                  value: 'Time Asc',
+                  child: Text('Time Asc'),
                 ),
                 const PopupMenuItem<String>(
                   value: 'Name',

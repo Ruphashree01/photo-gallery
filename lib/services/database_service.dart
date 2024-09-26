@@ -26,9 +26,21 @@ class DatabaseService {
     }
   }
 
-  Stream<QuerySnapshot<Photos>> listenToPhotos() {
+  Stream<QuerySnapshot<Photos>> listenToPhotos(String sortBy) {
     try {
-      return _galleryPhotosref.snapshots();
+      Query<Photos> query;
+
+      if (sortBy == 'Time Desc') {
+        query = _galleryPhotosref.orderBy('dateTime', descending: true);
+      } else if (sortBy == 'Time Asc') {
+        query = _galleryPhotosref.orderBy('dateTime', descending: false);
+      } else if (sortBy == 'Name') {
+        query = _galleryPhotosref.orderBy('name');
+      } else {
+        query = _galleryPhotosref;
+      }
+
+      return query.snapshots();
     } catch (e) {
       print("Error listening to photos: $e");
       return const Stream.empty();
